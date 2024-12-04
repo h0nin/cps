@@ -57,8 +57,8 @@
 <body>
     <div id="gameContainer">
         <h1>Reaction Time Game</h1>
-        <p>Click the box as soon as it turns green!</p>
-        <div id="reactionBox">Wait for green...</div>
+        <p>Click the box as soon as it turns green! Don’t click too early!</p>
+        <div id="reactionBox">Wait for it...</div>
         <div id="result"></div>
         <button id="startButton" class="button">Start Game</button>
     </div>
@@ -74,21 +74,35 @@
         function startGame() {
             resultDisplay.textContent = "";
             reactionBox.style.backgroundColor = "#555";
-            reactionBox.textContent = "Wait for green...";
+            reactionBox.textContent = "Wait for it...";
             isGreen = false;
 
-            const randomDelay = Math.random() * 3000 + 2000; // 2 to 5 seconds
+            const yellowDelay = Math.random() * 2000 + 1000; // 1 to 3 seconds
+            const greenDelay = Math.random() * 2000 + 1000; // 1 to 3 seconds after yellow
+
+            // Transition to yellow stage
             timeout = setTimeout(() => {
-                reactionBox.style.backgroundColor = "green";
-                reactionBox.textContent = "Click now!";
-                startTime = new Date().getTime();
-                isGreen = true;
-            }, randomDelay);
+                reactionBox.style.backgroundColor = "yellow";
+                reactionBox.textContent = "Get ready!";
+                // Transition to green stage
+                timeout = setTimeout(() => {
+                    reactionBox.style.backgroundColor = "green";
+                    reactionBox.textContent = "Click now!";
+                    startTime = new Date().getTime();
+                    isGreen = true;
+                }, greenDelay);
+            }, yellowDelay);
         }
 
         reactionBox.addEventListener("click", () => {
-            if (isGreen) {
-                // Calculate reaction time
+            if (!isGreen) {
+                // Clicked too early
+                clearTimeout(timeout);
+                reactionBox.style.backgroundColor = "#FF5555";
+                reactionBox.textContent = "Too early!";
+                resultDisplay.textContent = "You clicked too early. Try again.";
+            } else {
+                // Clicked at the right time
                 const endTime = new Date().getTime();
                 const reactionTime = endTime - startTime;
                 reactionBox.style.backgroundColor = "#555";
