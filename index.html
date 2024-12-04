@@ -9,80 +9,105 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
-            background-color: #282c34;
+            background-color: #1e1e1e;
             color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        #gameArea {
-            margin-top: 20vh;
+        #gameContainer {
+            text-align: center;
         }
-        .button {
-            display: inline-block;
-            padding: 20px 40px;
-            font-size: 24px;
-            color: white;
-            background-color: #61dafb;
-            border: none;
-            border-radius: 8px;
+        #reactionBox {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            background-color: #555;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            margin-top: 20px;
-        }
-        .button:disabled {
-            background-color: #aaa;
-            cursor: not-allowed;
+            user-select: none;
+            font-size: 20px;
+            color: white;
+            transition: background-color 0.3s ease;
         }
         #result {
-            margin-top: 30px;
+            margin-top: 20px;
             font-size: 24px;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div id="gameArea">
-        <h1>Reaction Time Test</h1>
-        <p>Click "Start" to begin. Click as fast as you can when the screen turns green!</p>
-        <div>
-            <button id="startButton" class="button">Start</button>
-            <button id="reactionButton" class="button" disabled>Click Me!</button>
-        </div>
+    <div id="gameContainer">
+        <h1>Reaction Time Game</h1>
+        <p>Click the box as soon as it turns green!</p>
+        <div id="reactionBox">Wait for green...</div>
         <div id="result"></div>
+        <button id="startButton" class="button">Start Game</button>
     </div>
     <script>
-        const startButton = document.getElementById("startButton");
-        const reactionButton = document.getElementById("reactionButton");
+        const reactionBox = document.getElementById("reactionBox");
         const resultDisplay = document.getElementById("result");
+        const startButton = document.getElementById("startButton");
 
         let timeout;
         let startTime;
+        let isClickable = false;
 
-        startButton.addEventListener("click", () => {
-            startButton.disabled = true;
-            reactionButton.disabled = true;
-            resultDisplay.textContent = "Wait for it...";
-            const delay = Math.random() * 3000 + 2000; // Random delay between 2-5 seconds
+        function startGame() {
+            resultDisplay.textContent = "";
+            reactionBox.style.backgroundColor = "#555";
+            reactionBox.textContent = "Wait for green...";
+            isClickable = false;
 
+            const randomDelay = Math.random() * 3000 + 2000; // 2 to 5 seconds
             timeout = setTimeout(() => {
-                reactionButton.disabled = false;
-                reactionButton.style.backgroundColor = "green";
+                reactionBox.style.backgroundColor = "green";
+                reactionBox.textContent = "Click now!";
                 startTime = new Date().getTime();
-                resultDisplay.textContent = "Click now!";
-            }, delay);
-        });
+                isClickable = true;
+            }, randomDelay);
+        }
 
-        reactionButton.addEventListener("click", () => {
-            if (!reactionButton.disabled) {
+        reactionBox.addEventListener("click", () => {
+            if (!isClickable) {
+                // User clicked too early
+                clearTimeout(timeout);
+                reactionBox.style.backgroundColor = "#FF5555";
+                reactionBox.textContent = "Too soon!";
+                resultDisplay.textContent = "You clicked too early. Try again.";
+                isClickable = false;
+            } else {
+                // User clicked after it turned green
                 const endTime = new Date().getTime();
                 const reactionTime = endTime - startTime;
-                resultDisplay.textContent = `Your reaction time is ${reactionTime} ms.`;
-                reactionButton.style.backgroundColor = "#61dafb";
-                startButton.disabled = false;
-                reactionButton.disabled = true;
+                reactionBox.style.backgroundColor = "#555";
+                reactionBox.textContent = "Well done!";
+                resultDisplay.textContent = `Your reaction time: ${reactionTime} ms.`;
+                isClickable = false;
             }
         });
 
-        // Reset the game if user clicks Start during countdown
         startButton.addEventListener("click", () => {
             clearTimeout(timeout);
-            reactionButton.style.backgroundColor = "#61dafb";
+            startGame();
         });
     </script>
 </body>
