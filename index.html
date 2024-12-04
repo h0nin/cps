@@ -69,39 +69,32 @@
 
         let timeout;
         let startTime;
-        let isClickable = false;
+        let isGreen = false;
 
         function startGame() {
             resultDisplay.textContent = "";
             reactionBox.style.backgroundColor = "#555";
             reactionBox.textContent = "Wait for green...";
-            isClickable = false;
+            isGreen = false;
 
             const randomDelay = Math.random() * 3000 + 2000; // 2 to 5 seconds
             timeout = setTimeout(() => {
                 reactionBox.style.backgroundColor = "green";
                 reactionBox.textContent = "Click now!";
                 startTime = new Date().getTime();
-                isClickable = true;
+                isGreen = true;
             }, randomDelay);
         }
 
         reactionBox.addEventListener("click", () => {
-            if (!isClickable) {
-                // User clicked too early
-                clearTimeout(timeout);
-                reactionBox.style.backgroundColor = "#FF5555";
-                reactionBox.textContent = "Too soon!";
-                resultDisplay.textContent = "You clicked too early. Try again.";
-                isClickable = false;
-            } else {
-                // User clicked after it turned green
+            if (isGreen) {
+                // Calculate reaction time
                 const endTime = new Date().getTime();
                 const reactionTime = endTime - startTime;
                 reactionBox.style.backgroundColor = "#555";
                 reactionBox.textContent = "Well done!";
                 resultDisplay.textContent = `Your reaction time: ${reactionTime} ms.`;
-                isClickable = false;
+                isGreen = false;
             }
         });
 
